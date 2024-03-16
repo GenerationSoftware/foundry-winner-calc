@@ -1,5 +1,8 @@
 {
   "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "viem": "^2.8.10"
   },

@@ -1,5 +1,6 @@
-import { encodeAbiParameters, type Address } from "viem"
+import { encodeAbiParameters, decodeAbiParameters, type Address } from "viem"
 import { paramsABI } from "./abis/params"
+import { winnersABI } from "./abis/winners"
 
 export const encodeParams = (data: {
   winningRandomNumber: bigint
@@ -30,4 +31,8 @@ export const encodeParams = (data: {
       }
     ]
   )
+}
+
+export const decodeWinners = (encodedData: `0x${string}`) => {
+  return decodeAbiParameters(winnersABI[0].inputs, encodedData)
 }

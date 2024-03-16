@@ -3,7 +3,7 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "utils/out",
     "target": "es2020",
     "esModuleInterop": true,
     "module": "esnext",
