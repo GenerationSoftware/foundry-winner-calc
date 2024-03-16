@@ -53,9 +53,9 @@ library WinnerCalcLib {
     }
 
     /// @dev pushes winners to the `winners` array based off the prize param info
-    function getWinningPicks(Params memory params, Winner[] storage winners) internal view {
+    function getWinningPicks(Params memory params, Winner[] storage winners) internal {
         for (uint256 userIndex = 0; userIndex < params.user.length; userIndex++) {
-            for (uint256 prizeIndex = 0; prizeIndex < params.tierPrizeCount.length; prizeIndex++) {
+            for (uint32 prizeIndex = 0; prizeIndex < params.tierPrizeCount; prizeIndex++) {
                 if (isWinner(
                     params.winningRandomNumber,
                     params.lastAwardedDrawId,

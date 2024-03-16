@@ -12,3 +12,4 @@ out/
 .envrc
 lcov.info
 node_modules
+files/
