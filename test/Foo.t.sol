@@ -1,40 +1,128 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
 import "forge-std/Test.sol";
 
-import { Foo } from "../src/Foo.sol";
-
-interface IERC20 {
-    function balanceOf(address account) external view returns (uint256);
+interface IPrizePool {
+    function isWinner(address _vault, address _user, uint8 _tier, uint32 _prizeIndex) external view returns (bool);
 }
 
-/// @dev See the "Writing Tests" section in the Foundry Book if this is your first time with Forge.
-/// https://book.getfoundry.sh/forge/writing-tests
-contract FooTest is Test {
-    uint256 public mainnetFork;
-
-    Foo public fooContract = new Foo();
+contract IsWinnerTest is Test {
+    IPrizePool public prizePool;
 
     function setUp() public {
-        mainnetFork = vm.createFork(vm.rpcUrl("mainnet"), 16_428_000);
+        prizePool = IPrizePool(address(0xe32e5E1c5f0c80bD26Def2d0EA5008C107000d6A));
     }
 
-    /// @dev Simple test. Run Forge with `-vvvv` to see stack traces.
     function test() external {
-        string memory foo = fooContract.getFoo();
+        assertEq(
+            prizePool.isWinner(
+                address(0x77935F2c72b5eB814753a05921aE495aa283906B),
+                address(0x56a07d0745785682950742ab55247330c80b5a5d),
+                2,
+                6
+            ),
+            true
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xCe8293f586091d48A0cE761bBf85D5bCAa1B8d2b),
+                address(0xBB7724d5Fc4Af70489B66D13b4f19361b1e31457),
+                3,
+                3
+            ),
+            true
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xCe8293f586091d48A0cE761bBf85D5bCAa1B8d2b),
+                address(0xBB7724d5Fc4Af70489B66D13b4f19361b1e31457),
+                3,
+                11
+            ),
+            true
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xCe8293f586091d48A0cE761bBf85D5bCAa1B8d2b),
+                address(0x65544898B40e9Ad57E15721Ea3003B5e40547cE8),
+                3,
+                15
+            ),
+            true
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0x12Dc4dA5037152F97aDC89a54C855e9bc84eEB7d),
+                3,
+                45
+            ),
+            true
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0xe48dD2A322a7EBFDAa9680fD2E8cEC27CBB7A765),
+                3,
+                33
+            ),
+            true
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0x223310371E98755A35756Ea24B629113584a8d9d),
+                3,
+                55
+            ),
+            true
+        );
 
-        assertEq(foo, "Foo");
-    }
-
-    /// @dev Test that runs against a fork of Ethereum Mainnet. You need to set `MAINNET_RPC_URL` in your `.envrc`
-    function testFork() external {
-        vm.selectFork(mainnetFork);
-
-        address usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-        address holder = 0x7713974908Be4BEd47172370115e8b1219F4A5f0;
-        uint256 actualBalance = IERC20(usdc).balanceOf(holder);
-        uint256 expectedBalance = 196_307_713.810457e6;
-        assertEq(actualBalance, expectedBalance);
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0x223310371E98755A35756Ea24B629113584a8d9d),
+                3,
+                56
+            ),
+            false
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0x223310371E98755A35756Ea24B629113584a8d9d),
+                3,
+                57
+            ),
+            false
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0xBB7724d5Fc4Af70489B66D13b4f19361b1e31457),
+                3,
+                33
+            ),
+            false
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0xBB7724d5Fc4Af70489B66D13b4f19361b1e31457),
+                3,
+                34
+            ),
+            false
+        );
+        assertEq(
+            prizePool.isWinner(
+                address(0xf0B19f02c63d51B69563A2b675e0160e1C34397C),
+                address(0x1CC346065dE103bd134eCb0D77E383398579a299),
+                3,
+                34
+            ),
+            false
+        );
     }
 }
