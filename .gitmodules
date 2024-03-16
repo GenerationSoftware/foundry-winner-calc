@@ -1,4 +1,6 @@
-[submodule "lib/forge-std"]
-	path = lib/forge-std
+[submodule "sol/lib/forge-std"]
+	path = sol/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-	branch = v1.3.0
+[submodule "sol/lib/pt-v5-prize-pool"]
+	path = sol/lib/pt-v5-prize-pool
+	url = https://github.com/GenerationSoftware/pt-v5-prize-pool
