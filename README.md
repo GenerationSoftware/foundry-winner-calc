@@ -11,13 +11,13 @@ A foundry-assisted toolkit for efficiently calculating winners of a prize pool d
 
 > **WINDOWS INSTALLATION** If you are installing on windows, you may need to increase your max filepath setting on git ***before running forge install*** by running the following command as administrator: `git config --system core.longpaths true`
 
-## How to Calculation Winners for each Vault
+## How to Calculate Winners for each Vault
 
 > This script batches RPC queries for a given vault, so you'll need to run it for each vault that you want to check prizes for.
 
 ### Step 1
 
-Compile a list of potential winners that you want to check against a given prize pool and vault combo and save the info to a file in the following format:
+Compile a list of potential winners that you want to check against, a given prize pool and vault combo and save the info to a file in the following format:
 
 > example-input.json
 ```json

@@ -1,13 +1,13 @@
 import { getClient } from "./client.js"
 import { encodeParams } from "./encoding.js"
 import { getPrizePoolInfo, getTierInfo, getVaultPortion } from "./prizePool.js"
-import { getUserTwabs, getVaultTwab } from "./twab.js"
+import { getTwabs } from "./twab.js"
 import type { Address } from "viem"
 
-export const getAllParams = async (prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], rpcUrl: string, chainId: number) => {
+export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[]) => {
   const params: { [tier: number]: `0x${string}` } = {}
 
-  const client = getClient(rpcUrl, chainId)
+  const client = getClient(chainId, rpcUrl)
 
   const prizePoolInfo = await getPrizePoolInfo(client, prizePoolAddress)
   const tierInfo = await getTierInfo(client, prizePoolAddress, prizePoolInfo.numTiers, prizePoolInfo.lastAwardedDrawId)
@@ -15,8 +15,7 @@ export const getAllParams = async (prizePoolAddress: Address, vaultAddress: Addr
   await Promise.all(Object.keys(tierInfo).map(async (_tier) => {
     const tier = parseInt(_tier)
     const vaultPortion = await getVaultPortion(client, prizePoolAddress, vaultAddress, { start: tierInfo[tier].startTwabDrawId, end: prizePoolInfo.lastAwardedDrawId })
-    const vaultTwab = await getVaultTwab(client, prizePoolInfo.twabControllerAddress, vaultAddress, { start: tierInfo[tier].startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
-    const userTwabs = await getUserTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: tierInfo[tier].startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
+    const { vaultTwab, userTwabs } = await getTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: tierInfo[tier].startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
 
     const encodedParams = encodeParams({
       winningRandomNumber: prizePoolInfo.randomNumber,

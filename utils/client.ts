@@ -8,7 +8,7 @@ import {
   arbitrumSepolia,
   base,
   baseSepolia
-} from 'viem/chains'
+} from "viem/chains"
 
 const chains: Record<number, Chain> = {
   1: mainnet,
@@ -21,6 +21,6 @@ const chains: Record<number, Chain> = {
   421614: arbitrumSepolia
 }
 
-export const getClient = (rpcUrl: string, chainId: number) => {
-  return createPublicClient({ transport: http(rpcUrl), chain: chains[chainId] }) as PublicClient<HttpTransport>
+export const getClient = (chainId: number, rpcUrl: string) => {
+  return createPublicClient({ chain: chains[chainId], transport: http(rpcUrl) }) as PublicClient<HttpTransport>
 }
