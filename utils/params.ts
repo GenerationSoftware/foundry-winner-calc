@@ -1,13 +1,13 @@
-import { getClient } from "./client"
-import { encodeParams } from "./encoding"
-import { getPrizePoolInfo, getTierInfo, getVaultPortion } from "./prizePool"
-import { getUserTwabs, getVaultTwab } from "./twab"
+import { getClient } from "./client.js"
+import { encodeParams } from "./encoding.js"
+import { getPrizePoolInfo, getTierInfo, getVaultPortion } from "./prizePool.js"
+import { getUserTwabs, getVaultTwab } from "./twab.js"
 import type { Address } from "viem"
 
-export const getAllParams = async (prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], rpcUrl: string) => {
+export const getAllParams = async (prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], rpcUrl: string, chainId: number) => {
   const params: { [tier: number]: `0x${string}` } = {}
 
-  const { client } = await getClient(rpcUrl)
+  const client = getClient(rpcUrl, chainId)
 
   const prizePoolInfo = await getPrizePoolInfo(client, prizePoolAddress)
   const tierInfo = await getTierInfo(client, prizePoolAddress, prizePoolInfo.numTiers, prizePoolInfo.lastAwardedDrawId)

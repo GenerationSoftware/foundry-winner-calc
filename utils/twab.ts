@@ -1,4 +1,4 @@
-import { twabControllerABI } from "./abis/twabController"
+import { twabControllerABI } from "./abis/twabController.js"
 import type { Address, PublicClient } from "viem"
 
 export const getVaultTwab = async (client: PublicClient, twabControllerAddress: Address, vaultAddress: Address, timestamps: { start: number, end: number }) => {

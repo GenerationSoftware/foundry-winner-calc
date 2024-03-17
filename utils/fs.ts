@@ -1,14 +1,14 @@
 import { getAllParams } from "./params"
+import { join } from "path"
 import fs from "fs"
 
-export const writeAllParamFiles = (allParams: Awaited<ReturnType<typeof getAllParams>>) => {
-  const writtenFilePaths: string[] = []
+export const writeAllParamFiles = (allParams: Awaited<ReturnType<typeof getAllParams>>, projectDir: string) => {
+  const writtenFilePaths: [number, string][] = []
 
   Object.entries(allParams).forEach(([tier, params]) => {
-    const name = `params-tier-${tier}.sol`
-    const filePath = `../sol/files/${name}`
+    const filePath = join(projectDir, `./sol/files/tier-${tier}-params.txt`)
     fs.writeFileSync(filePath, params)
-    writtenFilePaths.push(filePath)
+    writtenFilePaths.push([parseInt(tier), filePath])
   })
 
   return writtenFilePaths
