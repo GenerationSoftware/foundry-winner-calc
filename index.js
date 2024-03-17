@@ -1,6 +1,6 @@
-import { getAllParams, writeAllParamFiles, decodeWinners } from './utils/out/index.js'
+import { getAllParams, decodeWinners } from './utils/out/index.js'
 import { exec } from 'child_process'
-import { join } from 'path'
+import { join, dirname } from 'path'
 import fs from 'fs'
 
 const inputFile = process.argv[2]
@@ -11,23 +11,25 @@ const rootDir = process.argv[1].substring(0, process.argv[1].length - 8) // 8 ch
 const run = async () => {
   const { chainId, prizePoolAddress, vaultAddress, userAddresses } = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
   
-  const allParams = await getAllParams(prizePoolAddress, vaultAddress, userAddresses, rpcUrl, chainId)
-  const paramFiles = writeAllParamFiles(allParams, rootDir)
+  const allParams = Object.entries(await getAllParams(prizePoolAddress, vaultAddress, userAddresses, rpcUrl, chainId))
   
   const scriptPath = join(rootDir, './sol/script/WinnerCalc.s.sol')
   const configPath = join(rootDir, './sol/foundry.toml')
   const cachePath = join(rootDir, './sol/cache')
+  const paramsPath = join(rootDir, './sol/files/params.txt')
+  const resultsPath = join(rootDir, './sol/files/results.txt')
 
   const winnerMap = new Map()
   
-  for(const [tier, paramFilePath] of paramFiles) {
+  for(const [tier, params] of allParams) {
+    try { fs.mkdirSync(dirname(paramsPath)) } catch {}
+    fs.writeFileSync(paramsPath, params)
     await new Promise((resolve, reject) => {
-      const execOutFile = `${paramFilePath.substring(0, paramFilePath.length - 10)}results.txt` // removes the last 10 chars of param filename (params.txt)
-      exec(`export FWC_PARAM_FILENAME="${paramFilePath}" && export FWC_OUTPUT_FILENAME="${execOutFile}" && forge script ${scriptPath}:WinnerCalcScript --config-path ${configPath} --cache-path ${cachePath}`, (error, stdout, stderr) => {
+      exec(`forge script ${scriptPath}:WinnerCalcScript --config-path ${configPath} --cache-path ${cachePath}`, (error, stdout, stderr) => {
         if(error ?? stderr) {
           reject(error ?? stderr)
         } else {
-          const winners = decodeWinners(fs.readFileSync(execOutFile, 'utf8'))
+          const winners = decodeWinners(fs.readFileSync(resultsPath, 'utf8'))
           for(const winner of winners) {
             if(!winnerMap.has(winner.user)) {
               winnerMap.set(winner.user, {
@@ -51,6 +53,7 @@ const run = async () => {
     winners: [...winnerMap.values()]
   }
 
+  try { fs.mkdirSync(dirname(outputFile), { recursive: true }) } catch {} 
   fs.writeFileSync(outputFile, JSON.stringify(results, null, 2))
 }
 

@@ -5,7 +5,6 @@ export * from './abis/winners.js'
 
 export * from './client.js'
 export * from './encoding.js'
-export * from './fs.js'
 export * from './params.js'
 export * from './prizePool.js'
 export * from './twab.js'

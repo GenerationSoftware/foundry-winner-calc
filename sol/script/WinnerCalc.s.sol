@@ -10,8 +10,8 @@ contract WinnerCalcScript is Script {
     Winner[] public winners;
 
     function run() public {
-        string memory paramFilename = vm.envString("FWC_PARAM_FILENAME");
-        string memory outputFilename = vm.envString("FWC_OUTPUT_FILENAME");
+        string memory paramFilename = "files/params.txt";
+        string memory outputFilename = "files/results.txt";
         Params memory params = abi.decode(vm.parseBytes(vm.readFile(paramFilename)), (Params));
         WinnerCalcLib.getWinningPicks(params, winners);
         vm.writeFile(outputFilename, vm.toString(abi.encode(winners)));
