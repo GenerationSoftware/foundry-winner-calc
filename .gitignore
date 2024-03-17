@@ -1,3 +1,4 @@
 node_modules/
 .envrc
 utils/out
+.env
