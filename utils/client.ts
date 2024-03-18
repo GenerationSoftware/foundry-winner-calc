@@ -21,6 +21,14 @@ const chains: Record<number, Chain> = {
   421614: arbitrumSepolia
 }
 
-export const getClient = (chainId: number, rpcUrl: string) => {
-  return createPublicClient({ chain: chains[chainId], transport: http(rpcUrl) }) as PublicClient<HttpTransport>
+export const getClient = (chainId: number, rpcUrl: string, clientOptions?: { multicallBatchSize?: number }) => {
+  const client = createPublicClient({ chain: chains[chainId], transport: http(rpcUrl) }) as PublicClient<HttpTransport>
+  if (!!clientOptions?.multicallBatchSize) {
+    client.batch = {
+      multicall: {
+        batchSize: clientOptions?.multicallBatchSize
+      }
+    }
+  } 
+  return client;
 }

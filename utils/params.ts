@@ -4,10 +4,10 @@ import { getPrizePoolInfo, getTierInfo, getVaultPortion } from "./prizePool.js"
 import { getTwabs } from "./twab.js"
 import type { Address } from "viem"
 
-export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[]) => {
+export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], options?: { multicallBatchSize?: number }) => {
   const params: { [tier: number]: `0x${string}` } = {}
 
-  const client = getClient(chainId, rpcUrl)
+  const client = getClient(chainId, rpcUrl, options)
 
   const prizePoolInfo = await getPrizePoolInfo(client, prizePoolAddress)
   const tierInfo = await getTierInfo(client, prizePoolAddress, prizePoolInfo.numTiers, prizePoolInfo.lastAwardedDrawId)
