@@ -30,5 +30,5 @@ export const getClient = (chainId: number, rpcUrl: string, clientOptions?: { mul
       }
     }
   } 
-  return client;
+  return client
 }
