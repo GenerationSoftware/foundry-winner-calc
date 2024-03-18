@@ -10,9 +10,9 @@ const outputFile = process.argv[3]
 const rpcUrl = process.env.FWC_RPC_URL
 
 const run = async () => {
-  const { chainId, prizePoolAddress, vaultAddress, userAddresses } = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
+  const { chainId, multicallBatchSize, prizePoolAddress, vaultAddress, userAddresses } = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
   
-  const allParams = Object.entries(await getAllParams(chainId, rpcUrl, prizePoolAddress, vaultAddress, userAddresses))
+  const allParams = Object.entries(await getAllParams(chainId, rpcUrl, prizePoolAddress, vaultAddress, userAddresses, { multicallBatchSize }))
   
   const scriptPath = join(rootDir, './sol/script/WinnerCalc.s.sol')
   const configPath = join(rootDir, './sol/foundry.toml')
