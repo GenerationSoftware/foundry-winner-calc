@@ -33,6 +33,13 @@ Compile a list of potential winners that you want to check against, a given priz
 }
 ```
 
+> You can optionally define a `multicallBatchSize` argument in the input json file to limit multicall sizes for your RPC calls. Some RPC enforce "gas" limits on read calls and will only accept certain batch sizes:
+```json
+{
+  "multicallBatchSize": 50
+}
+```
+
 ### Step 2
 
 Define your desired RPC URL as a local environment variable like so:
