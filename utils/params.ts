@@ -6,7 +6,7 @@ import type { Address } from "viem"
 
 export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], options?: { multicallBatchSize?: number }) => {
   const params: { [tier: number]: `0x${string}` } = {}
-  const cachedTwabs: { [startTimestamp: number]: Awaited<ReturnType<typeof getTwabs>> } = {}
+  const cachedTwabs: { [startTimestamp: number]: ReturnType<typeof getTwabs> } = {}
 
   const client = getClient(chainId, rpcUrl, options)
 
@@ -19,9 +19,9 @@ export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAdd
 
     const startTwabTimestamp = tierInfo[tier].startTwabTimestamp
     if(cachedTwabs[startTwabTimestamp] === undefined) {
-      cachedTwabs[startTwabTimestamp] = await getTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
+      cachedTwabs[startTwabTimestamp] = getTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
     }
-    const { vaultTwab, userTwabs } = cachedTwabs[startTwabTimestamp]
+    const { vaultTwab, userTwabs } = await cachedTwabs[startTwabTimestamp]
 
     const encodedParams = encodeParams({
       winningRandomNumber: prizePoolInfo.randomNumber,
