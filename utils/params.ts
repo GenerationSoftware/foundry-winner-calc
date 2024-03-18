@@ -6,6 +6,7 @@ import type { Address } from "viem"
 
 export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], options?: { multicallBatchSize?: number }) => {
   const params: { [tier: number]: `0x${string}` } = {}
+  const cachedTwabs: { [startTimestamp: number]: Awaited<ReturnType<typeof getTwabs>> } = {}
 
   const client = getClient(chainId, rpcUrl, options)
 
@@ -15,7 +16,12 @@ export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAdd
   await Promise.all(Object.keys(tierInfo).map(async (_tier) => {
     const tier = parseInt(_tier)
     const vaultPortion = await getVaultPortion(client, prizePoolAddress, vaultAddress, { start: tierInfo[tier].startTwabDrawId, end: prizePoolInfo.lastAwardedDrawId })
-    const { vaultTwab, userTwabs } = await getTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: tierInfo[tier].startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
+
+    const startTwabTimestamp = tierInfo[tier].startTwabTimestamp
+    if(cachedTwabs[startTwabTimestamp] === undefined) {
+      cachedTwabs[startTwabTimestamp] = await getTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
+    }
+    const { vaultTwab, userTwabs } = cachedTwabs[startTwabTimestamp]
 
     const encodedParams = encodeParams({
       winningRandomNumber: prizePoolInfo.randomNumber,
