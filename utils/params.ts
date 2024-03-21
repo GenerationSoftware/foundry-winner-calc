@@ -5,7 +5,7 @@ import { getTwabs } from "./twab.js"
 import type { Address } from "viem"
 
 export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], options?: { multicallBatchSize?: number }) => {
-  const params: { [tier: number]: `0x${string}` } = {}
+  const params: { tier: number, params: `0x${string}`, chunkSize: number, prizeCount: number }[] = []
   const cachedTwabs: { [startTimestamp: number]: ReturnType<typeof getTwabs> } = {}
 
   const client = getClient(chainId, rpcUrl, options)
@@ -23,20 +23,32 @@ export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAdd
     }
     const { vaultTwab, userTwabs } = await cachedTwabs[startTwabTimestamp]
 
-    const encodedParams = encodeParams({
-      winningRandomNumber: prizePoolInfo.randomNumber,
-      lastAwardedDrawId: prizePoolInfo.lastAwardedDrawId,
-      vaultAddress,
-      tier,
-      tierPrizeCount: tierInfo[tier].prizeCount,
-      tierOdds: tierInfo[tier].odds,
-      vaultPortion,
-      vaultTwab,
-      userAddresses: userTwabs.map(user => user.address),
-      userTwabs: userTwabs.map(user => user.twab)
-    })
+    const chunkSize = Math.min(10_000, Math.ceil(1_000_000 / tierInfo[tier].prizeCount)) // varies between 1-1000 based on prize count
+    const userChunks: (typeof userTwabs)[] = []
+    for (let chunk = 0; userChunks.length < Math.ceil(userTwabs.length / chunkSize); chunk++) {
+      userChunks.push(
+        userTwabs.slice(
+          chunk * chunkSize,
+          Math.min((chunk + 1) * chunkSize, userTwabs.length)
+        )
+      )
+    }
 
-    params[tier] = encodedParams
+    for (const userChunk of userChunks) {
+      const encodedParams = encodeParams({
+        winningRandomNumber: prizePoolInfo.randomNumber,
+        lastAwardedDrawId: prizePoolInfo.lastAwardedDrawId,
+        vaultAddress,
+        tier,
+        tierPrizeCount: tierInfo[tier].prizeCount,
+        tierOdds: tierInfo[tier].odds,
+        vaultPortion,
+        vaultTwab,
+        userAddresses: userChunk.map(user => user.address),
+        userTwabs: userChunk.map(user => user.twab)
+      })
+      params.push({ tier, params: encodedParams, chunkSize: userChunk.length, prizeCount: tierInfo[tier].prizeCount })
+    }
   }))
 
   return params
