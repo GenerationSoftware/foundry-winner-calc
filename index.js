@@ -12,6 +12,9 @@ const rpcUrl = process.env.FWC_RPC_URL
 const run = async () => {
   const { chainId, multicallBatchSize, prizePoolAddress, vaultAddress, userAddresses, debug, blockNumber } = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
   const parsedBlockNumber = !!blockNumber ? BigInt(blockNumber) : undefined;
+  if (debug) {
+    process.env.FWC_DEBUG = "true";
+  }
   
   const paramBatches = await getAllParams(chainId, rpcUrl, prizePoolAddress, vaultAddress, userAddresses, { multicallBatchSize, blockNumber: parsedBlockNumber })
   

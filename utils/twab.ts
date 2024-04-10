@@ -30,6 +30,9 @@ export const getTwabs = async (
   })
 
   if(multicallResults[0].status === 'failure') {
+    if (process.env.FWC_DEBUG) {
+      console.error(multicallResults[0].error);
+    }
     throw new Error(`Could not query vault twab for ${vaultAddress}.`)
   }
 
