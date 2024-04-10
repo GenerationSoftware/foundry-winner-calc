@@ -24,7 +24,7 @@ struct Winner {
 
 contract WinnerCalc {
 
-    Winner[] public winners;
+    Winner[] private winners;
     
     /// @dev pushes winners to the `winners` array based off the prize param info
     function checkWin(

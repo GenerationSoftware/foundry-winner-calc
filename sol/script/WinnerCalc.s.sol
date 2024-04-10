@@ -6,7 +6,7 @@ import { Params, WinnerCalc, Winner } from "../src/WinnerCalc.sol";
 
 contract WinnerCalcScript is Script {
 
-    WinnerCalc public winnerCalc;
+    WinnerCalc private winnerCalc;
 
     function run() public {
         string memory paramFilename = "files/params.txt";

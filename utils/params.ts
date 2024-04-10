@@ -4,14 +4,14 @@ import { getPrizePoolInfo, getTierInfo, getVaultPortion } from "./prizePool.js"
 import { getTwabs } from "./twab.js"
 import type { Address } from "viem"
 
-export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], options?: { multicallBatchSize?: number }) => {
+export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAddress: Address, vaultAddress: Address, userAddresses: Address[], options?: { multicallBatchSize?: number, blockNumber?: bigint }) => {
   const params: { tier: number, params: `0x${string}`, chunkSize: number, prizeCount: number }[] = []
   const cachedTwabs: { [startTimestamp: number]: ReturnType<typeof getTwabs> } = {}
 
   const client = getClient(chainId, rpcUrl, options)
 
-  const prizePoolInfo = await getPrizePoolInfo(client, prizePoolAddress)
-  const tierInfo = await getTierInfo(client, prizePoolAddress, prizePoolInfo.numTiers, prizePoolInfo.lastAwardedDrawId)
+  const prizePoolInfo = await getPrizePoolInfo(client, prizePoolAddress, options)
+  const tierInfo = await getTierInfo(client, prizePoolAddress, prizePoolInfo.numTiers, prizePoolInfo.lastAwardedDrawId, options)
 
   await Promise.all(Object.keys(tierInfo).map(async (_tier) => {
     const tier = parseInt(_tier)
@@ -19,7 +19,14 @@ export const getAllParams = async (chainId: number, rpcUrl: string, prizePoolAdd
 
     const startTwabTimestamp = tierInfo[tier].startTwabTimestamp
     if(cachedTwabs[startTwabTimestamp] === undefined) {
-      cachedTwabs[startTwabTimestamp] = getTwabs(client, prizePoolInfo.twabControllerAddress, vaultAddress, userAddresses, { start: startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt })
+      cachedTwabs[startTwabTimestamp] = getTwabs(
+        client,
+        prizePoolInfo.twabControllerAddress,
+        vaultAddress,
+        userAddresses,
+        { start: startTwabTimestamp, end: prizePoolInfo.lastAwardedDrawClosedAt },
+        options
+      )
     }
     const { vaultTwab, userTwabs } = await cachedTwabs[startTwabTimestamp]
 

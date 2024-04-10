@@ -33,13 +33,6 @@ Compile a list of potential winners that you want to check against, a given priz
 }
 ```
 
-> You can optionally define a `multicallBatchSize` argument in the input json file to limit multicall sizes for your RPC calls. Some RPC enforce "gas" limits on read calls and will only accept certain batch sizes:
-```json
-{
-  "multicallBatchSize": 50
-}
-```
-
 ### Step 2
 
 Define your desired RPC URL as a local environment variable like so:
@@ -68,5 +61,51 @@ When the script finishes, the results will be written to your output file locati
       }
     }
   ]
+}
+```
+
+## Optional Arguments
+
+Optional arguments can be set in the input JSON file to change the behaviour of the script.
+
+--------------------------------------------------------------------------------
+
+### multicallBatchSize
+
+Set the `multicallBatchSize` argument in the input json file to limit multicall sizes for your RPC calls. Some RPC enforce "gas" limits on read calls and will only accept certain batch sizes.
+
+#### Example:
+
+```json
+{
+  "multicallBatchSize": 50
+}
+```
+
+--------------------------------------------------------------------------------
+
+### blockNumber
+
+The `blockNumber` argument can be set to run the script at a specific block number instead of the current block. Must be either a number or string that can be parsed into a `BigInt`.
+
+#### Example:
+
+```json
+{
+  "blockNumber": "10448512"
+}
+```
+
+--------------------------------------------------------------------------------
+
+### debug
+
+The `debug` argument is an optional boolean. When set, some extra logs will be included in the output logs to help debug issues.
+
+#### Example:
+
+```json
+{
+  "debug": true
 }
 ```

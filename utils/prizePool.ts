@@ -1,14 +1,15 @@
 import { prizePoolABI } from "./abis/prizePool.js"
 import type { Address, ContractFunctionParameters, PublicClient } from "viem"
 
-export const getPrizePoolInfo = async (client: PublicClient, prizePoolAddress: Address) => {
+export const getPrizePoolInfo = async (client: PublicClient, prizePoolAddress: Address, options?: { blockNumber?: bigint }) => {
   const multicallResults = await client.multicall({
     contracts: [
       { address: prizePoolAddress, abi: prizePoolABI, functionName: 'twabController' },
       { address: prizePoolAddress, abi: prizePoolABI, functionName: 'getWinningRandomNumber' },
       { address: prizePoolAddress, abi: prizePoolABI, functionName: 'getLastAwardedDrawId' },
       { address: prizePoolAddress, abi: prizePoolABI, functionName: 'numberOfTiers' }
-    ]
+    ],
+    blockNumber: options?.blockNumber
   })
 
   if(multicallResults.some(i => i.status === 'failure')) {
@@ -30,7 +31,7 @@ export const getPrizePoolInfo = async (client: PublicClient, prizePoolAddress: A
   return { twabControllerAddress, randomNumber, lastAwardedDrawId, lastAwardedDrawClosedAt, numTiers }
 }
 
-export const getTierInfo = async (client: PublicClient, prizePoolAddress: Address, numTiers: number, lastAwardedDrawId: number) => {
+export const getTierInfo = async (client: PublicClient, prizePoolAddress: Address, numTiers: number, lastAwardedDrawId: number, options?: { blockNumber?: bigint }) => {
   const tierInfo: { [tier: number]: { prizeCount: number, odds: bigint, accrualDraws: number, startTwabDrawId: number, startTwabTimestamp: number } } = {}
   const tiers = Array.from(Array(numTiers).keys())
   const startDrawIds: { [tier: number]: number } = {}
@@ -42,7 +43,7 @@ export const getTierInfo = async (client: PublicClient, prizePoolAddress: Addres
     firstContracts.push({ address: prizePoolAddress, abi: prizePoolABI, functionName: 'getTierAccrualDurationInDraws', args: [tier] })
   })
 
-  const firstMulticallResults = await client.multicall({ contracts: firstContracts })
+  const firstMulticallResults = await client.multicall({ contracts: firstContracts, blockNumber: options?.blockNumber })
 
   if(firstMulticallResults.some(i => i.status === 'failure')) {
     throw new Error('Could not query basic tier information.')
@@ -55,7 +56,7 @@ export const getTierInfo = async (client: PublicClient, prizePoolAddress: Addres
     secondContracts.push({ address: prizePoolAddress, abi: prizePoolABI, functionName: 'drawOpensAt', args: [startDrawIds[tier]] })
   })
 
-  const secondMulticallResults = await client.multicall({ contracts: secondContracts })
+  const secondMulticallResults = await client.multicall({ contracts: secondContracts, blockNumber: options?.blockNumber })
 
   if(secondMulticallResults.some(i => i.status === 'failure')) {
     throw new Error('Could not query draw timestamps based on tier accrual duration.')

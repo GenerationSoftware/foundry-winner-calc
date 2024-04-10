@@ -10,9 +10,10 @@ const outputFile = process.argv[3]
 const rpcUrl = process.env.FWC_RPC_URL
 
 const run = async () => {
-  const { chainId, multicallBatchSize, prizePoolAddress, vaultAddress, userAddresses } = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
+  const { chainId, multicallBatchSize, prizePoolAddress, vaultAddress, userAddresses, debug, blockNumber } = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
+  const parsedBlockNumber = !!blockNumber ? BigInt(blockNumber) : undefined;
   
-  const paramBatches = await getAllParams(chainId, rpcUrl, prizePoolAddress, vaultAddress, userAddresses, { multicallBatchSize })
+  const paramBatches = await getAllParams(chainId, rpcUrl, prizePoolAddress, vaultAddress, userAddresses, { multicallBatchSize, blockNumber: parsedBlockNumber })
   
   const scriptPath = join(rootDir, './sol/script/WinnerCalc.s.sol')
   const configPath = join(rootDir, './sol/foundry.toml')
@@ -31,6 +32,9 @@ const run = async () => {
     await new Promise((resolve, reject) => {
       exec(`forge script ${scriptPath}:WinnerCalcScript --config-path ${configPath} --cache-path ${cachePath} --memory-limit 268435456 --skip-simulation`, (error, stdout, stderr) => {
         if(error ?? stderr) {
+          if (debug) {
+            console.log(stdout)
+          }
           console.log(stderr)
           reject(error ?? stderr)
         } else {

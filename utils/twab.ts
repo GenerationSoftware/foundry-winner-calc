@@ -1,7 +1,14 @@
 import { twabControllerABI } from "./abis/twabController.js"
 import type { Address, PublicClient } from "viem"
 
-export const getTwabs = async (client: PublicClient, twabControllerAddress: Address, vaultAddress: Address, userAddresses: Address[], timestamps: { start: number, end: number }) => {
+export const getTwabs = async (
+  client: PublicClient,
+  twabControllerAddress: Address,
+  vaultAddress: Address,
+  userAddresses: Address[],
+  timestamps: { start: number, end: number },
+  options?: { blockNumber?: bigint }
+) => {
   const userTwabs: { address: Address, twab: bigint }[] = []
 
   const multicallResults = await client.multicall({
@@ -18,7 +25,8 @@ export const getTwabs = async (client: PublicClient, twabControllerAddress: Addr
         functionName: 'getTwabBetween',
         args: [vaultAddress, userAddress, BigInt(timestamps.start), BigInt(timestamps.end)]
       }))
-    ]
+    ],
+    blockNumber: options?.blockNumber
   })
 
   if(multicallResults[0].status === 'failure') {
